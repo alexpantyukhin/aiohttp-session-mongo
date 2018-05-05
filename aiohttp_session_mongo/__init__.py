@@ -1,13 +1,15 @@
 from aiohttp_session import AbstractStorage, Session
 import uuid
 
+__version__ = '0.0.1'
+
 
 class MongoStorage(AbstractStorage):
     def __init__(self, collection, *, cookie_name="AIOHTTP_SESSION",
-                     domain=None, max_age=None, path='/',
-                     secure=None, httponly=True,
-                     key_factory=lambda: uuid.uuid4().hex,
-                     encoder=lambda x: x, decoder=lambda x: x):
+                 domain=None, max_age=None, path='/',
+                 secure=None, httponly=True,
+                 key_factory=lambda: uuid.uuid4().hex,
+                 encoder=lambda x: x, decoder=lambda x: x):
         super().__init__(cookie_name=cookie_name, domain=domain,
                          max_age=max_age, path=path, secure=secure,
                          httponly=httponly,
@@ -55,7 +57,13 @@ class MongoStorage(AbstractStorage):
         max_age = session.max_age
         expire = max_age if max_age is not None else 0
         stored_key = (self.cookie_name + '_' + key).encode('utf-8')
-        await self._collection.update_one({'key': stored_key},
-                                          {'key': stored_key,
-                                           'data': data,
-                                           'expire': expire})
+        await self._collection.update_one(
+                                          {'key': stored_key},
+                                          {"$set":
+                                            {
+                                              'key': stored_key,
+                                              'data': data,
+                                              'expire': expire
+                                            }
+                                          },
+                                          upsert=True)
