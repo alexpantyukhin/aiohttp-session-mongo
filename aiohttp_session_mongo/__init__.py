@@ -4,10 +4,10 @@ import uuid
 
 class MongoStorage(AbstractStorage):
     def __init__(self, collection, *, cookie_name="AIOHTTP_SESSION",
-                     domain=None, max_age=None, path='/',
-                     secure=None, httponly=True,
-                     key_factory=lambda: uuid.uuid4().hex,
-                     encoder=lambda x: x, decoder=lambda x: x):
+                 domain=None, max_age=None, path='/',
+                 secure=None, httponly=True,
+                 key_factory=lambda: uuid.uuid4().hex,
+                 encoder=lambda x: x, decoder=lambda x: x):
         super().__init__(cookie_name=cookie_name, domain=domain,
                          max_age=max_age, path=path, secure=secure,
                          httponly=httponly,
