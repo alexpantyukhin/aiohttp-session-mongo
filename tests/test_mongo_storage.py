@@ -21,26 +21,31 @@ async def make_cookie(client, mongo_collection, data):
         'created': int(time.time())
     }
     key = uuid.uuid4().hex
+    storage_key = ('AIOHTTP_SESSION_' + key).encode('utf-8')
 
-    await mongo_collection.update_one({'key': key},
-                                {"$set": {'key': key, 'data': session_data}},
-                                upsert=True)
+    await mongo_collection.update_one(
+                            {'key': storage_key},
+                            {"$set": {'key': storage_key, 'data': session_data}},
+                            upsert=True)
     client.session.cookie_jar.update_cookies({'AIOHTTP_SESSION': key})
 
 
 async def make_cookie_with_bad_value(client, mongo_collection):
     key = uuid.uuid4().hex
-    await mongo_collection.update_one({'key': key},
-                                {"$set": {}},
-                                upsert=True)
+    storage_key = ('AIOHTTP_SESSION_' + key).encode('utf-8')
+    await mongo_collection.update_one(
+                            {'key': storage_key},
+                            {"$set": {'key': storage_key}},
+                            upsert=True)
     client.session.cookie_jar.update_cookies({'AIOHTTP_SESSION': key})
 
 
 async def load_cookie(client, mongo_collection):
     cookies = client.session.cookie_jar.filter_cookies(client.make_url('/'))
     key = cookies['AIOHTTP_SESSION']
+    storage_key = ('AIOHTTP_SESSION_' + key.value).encode('utf-8')
     data_row = await mongo_collection.find_one(
-        filter={'key': key}
+        filter={'key': storage_key}
     )
 
     return data_row['data']
