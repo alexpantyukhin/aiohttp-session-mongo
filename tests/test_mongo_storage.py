@@ -39,7 +39,11 @@ async def make_cookie_with_bad_value(client, mongo_collection):
     storage_key = ('AIOHTTP_SESSION_' + key).encode('utf-8')
     await mongo_collection.update_one(
         {'key': storage_key},
-        {"$set": {'key': storage_key}},
+        {"$set":
+            {
+                'key': storage_key,
+                'data': {}
+            }},
         upsert=True)
     client.session.cookie_jar.update_cookies({'AIOHTTP_SESSION': key})
 
@@ -166,8 +170,9 @@ async def test_create_cookie_in_handler(aiohttp_client, mongo_collection):
     assert morsel['httponly']
     assert morsel['path'] == '/'
 
+    storage_key = ('AIOHTTP_SESSION_' + morsel.value).encode('utf-8')
     count = await mongo_collection.count(
-        {'key': 'AIOHTTP_SESSION_' + morsel.value}
+        {'key': storage_key}
     )
     assert count > 0
 
