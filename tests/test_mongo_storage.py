@@ -24,9 +24,13 @@ async def make_cookie(client, mongo_collection, data):
     storage_key = ('AIOHTTP_SESSION_' + key).encode('utf-8')
 
     await mongo_collection.update_one(
-                            {'key': storage_key},
-                            {"$set": {'key': storage_key, 'data': session_data}},
-                            upsert=True)
+        {'key': storage_key},
+        {"$set":
+            {
+                'key': storage_key,
+                'data': session_data
+            }},
+        upsert=True)
     client.session.cookie_jar.update_cookies({'AIOHTTP_SESSION': key})
 
 
@@ -34,9 +38,9 @@ async def make_cookie_with_bad_value(client, mongo_collection):
     key = uuid.uuid4().hex
     storage_key = ('AIOHTTP_SESSION_' + key).encode('utf-8')
     await mongo_collection.update_one(
-                            {'key': storage_key},
-                            {"$set": {'key': storage_key}},
-                            upsert=True)
+        {'key': storage_key},
+        {"$set": {'key': storage_key}},
+        upsert=True)
     client.session.cookie_jar.update_cookies({'AIOHTTP_SESSION': key})
 
 
@@ -52,7 +56,6 @@ async def load_cookie(client, mongo_collection):
 
 
 async def test_create_new_session(aiohttp_client, mongo_collection):
-
     async def handler(request):
         session = await get_session(request)
         assert isinstance(session, Session)
@@ -67,7 +70,6 @@ async def test_create_new_session(aiohttp_client, mongo_collection):
 
 
 async def test_load_existing_session(aiohttp_client, mongo_collection):
-
     async def handler(request):
         session = await get_session(request)
         assert isinstance(session, Session)
@@ -83,7 +85,6 @@ async def test_load_existing_session(aiohttp_client, mongo_collection):
 
 
 async def test_load_bad_session(aiohttp_client, mongo_collection):
-
     async def handler(request):
         session = await get_session(request)
         assert isinstance(session, Session)
@@ -99,7 +100,6 @@ async def test_load_bad_session(aiohttp_client, mongo_collection):
 
 
 async def test_change_session(aiohttp_client, mongo_collection):
-
     async def handler(request):
         session = await get_session(request)
         session['c'] = 3
@@ -126,7 +126,6 @@ async def test_change_session(aiohttp_client, mongo_collection):
 
 async def test_clear_cookie_on_session_invalidation(
         aiohttp_client, mongo_collection):
-
     async def handler(request):
         session = await get_session(request)
         session.invalidate()
@@ -146,7 +145,6 @@ async def test_clear_cookie_on_session_invalidation(
 
 
 async def test_create_cookie_in_handler(aiohttp_client, mongo_collection):
-
     async def handler(request):
         session = await get_session(request)
         session['a'] = 1
@@ -175,8 +173,7 @@ async def test_create_cookie_in_handler(aiohttp_client, mongo_collection):
 
 
 async def test_create_new_session_if_key_doesnt_exists_in_redis(
-          aiohttp_client, mongo_collection):
-
+        aiohttp_client, mongo_collection):
     async def handler(request):
         session = await get_session(request)
         assert session.new
@@ -191,7 +188,6 @@ async def test_create_new_session_if_key_doesnt_exists_in_redis(
 
 async def test_create_storate_with_custom_key_factory(
         aiohttp_client, mongo_collection):
-
     async def handler(request):
         session = await get_session(request)
         session['key'] = 'value'
