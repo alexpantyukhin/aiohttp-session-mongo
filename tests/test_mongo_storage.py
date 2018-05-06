@@ -6,10 +6,11 @@ from aiohttp_session import Session, session_middleware, get_session
 from aiohttp_session_mongo import MongoStorage
 
 
-def create_app(handler, mongo, max_age=None,
+def create_app(handler, mongo_collection, max_age=None,
                key_factory=lambda: uuid.uuid4().hex):
     middleware = session_middleware(
-        MongoStorage(mongo, max_age=max_age, key_factory=key_factory))
+        MongoStorage(mongo_collection, max_age=max_age,
+                     key_factory=key_factory))
     app = web.Application(middlewares=[middleware])
     app.router.add_route('GET', '/', handler)
     return app
