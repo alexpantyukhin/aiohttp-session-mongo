@@ -24,7 +24,7 @@ extras_require = {
 setup(name='aiohttp-session-mongo',
       version=version,
       description=("mongo sessions for aiohttp.web"),
-      long_description=read('README.md'),
+      long_description=read('README.rst'),
       classifiers=[
           'License :: OSI Approved :: Apache Software License',
           'Intended Audience :: Developers',

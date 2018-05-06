@@ -36,7 +36,6 @@ A trivial usage example:
 
     def make_app():
         app = web.Application()
-        # secret_key must be 32 url-safe base64-encoded bytes
 
         setup(app, MongoStorage(mongo_colletion,
                                 max_age=max_age,
