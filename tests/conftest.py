@@ -7,6 +7,7 @@ import uuid
 from docker import from_env as docker_from_env
 import socket
 import motor.motor_asyncio as aiomotor
+from pymongo.errors import ServerSelectionTimeoutError
 
 
 @pytest.fixture(scope='session')
@@ -47,7 +48,7 @@ def docker():
 
 
 @pytest.fixture(scope='session')
-def mongodb_server(docker, session_id, loop, request):
+def mongo_server(docker, session_id, loop, request):
 
     image = 'mongo:{}'.format('latest')
 
@@ -74,7 +75,7 @@ def mongodb_server(docker, session_id, loop, request):
     else:
         inspection = docker.api.inspect_container(container.id)
         host = inspection['NetworkSettings']['IPAddress']
-        port = 11211
+        port = 27017
 
     delay = 0.1
     for i in range(20):
@@ -85,7 +86,7 @@ def mongodb_server(docker, session_id, loop, request):
                 io_loop=loop)
             loop.run_until_complete(conn.list_databases())
             break
-        except ConnectionRefusedError as e:
+        except ServerSelectionTimeoutError as e:
             time.sleep(delay)
             delay *= 2
     else:
@@ -107,10 +108,22 @@ def mongo_params(mongo_server):
 
 @pytest.fixture
 def mongo(loop, mongo_params):
-    mongo_uri = "mongodb://{}:{}"\
-        .format(mongo_params['host'], mongo_params['port'])
-    conn = aiomotor.AsyncIOMotorClient(
-        mongo_uri,
-        io_loop=loop)
-    db_name = 'test_db'
-    return conn[db_name]
+
+    async def init_mogo(loop):
+        url = "mongodb://{}:{}".format(
+            mongo_params['host'], mongo_params['port']
+        )
+        conn = aiomotor.AsyncIOMotorClient(
+            url, maxPoolSize=2, io_loop=loop)
+        return conn
+
+    conn = loop.run_until_complete(init_mogo(loop))
+
+    db = 'test_db'
+    return conn[db]
+
+
+@pytest.fixture
+def mongo_collection(mongo):
+    name = 'posts'
+    return mongo[name]
