@@ -1,9 +1,9 @@
 aiohttp_session_mongo
 ===============
-.. image:: https://travis-ci.org/alexpantyukhin/aiohttp_session_mongo.svg?branch=master
-    :target: https://travis-ci.org/alexpantyukhin/aiohttp_session_mongo
-.. image:: https://codecov.io/github/alexpantyukhin/aiohttp_session_mongo/coverage.svg?branch=master
-    :target: https://codecov.io/github/alexpantyukhin/aiohttp_session_mongo
+.. image:: https://travis-ci.org/alexpantyukhin/aiohttp-session-mongo.svg?branch=master
+    :target: https://travis-ci.org/alexpantyukhin/aiohttp-session-mongo
+.. image:: https://codecov.io/github/alexpantyukhin/aiohttp-session-mongo/coverage.svg?branch=master
+    :target: https://codecov.io/github/alexpantyukhin/aiohttp-session-mongo
 
 The library provides mongo sessions store for `aiohttp.web`__.
 
