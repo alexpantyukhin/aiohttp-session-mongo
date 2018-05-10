@@ -24,6 +24,8 @@ A trivial usage example:
     from aiohttp import web
     from aiohttp_session import setup, get_session
     from aiohttp_session_mongo import MongoStorage
+    import motor.motor_asyncio as aiomotor
+    import asyncio
 
 
     async def handler(request):
@@ -34,10 +36,38 @@ A trivial usage example:
         return web.Response(text=text)
 
 
+    def init_mongo(loop):
+
+        async def init_mongo(loop):
+            url = "mongodb://localhost:27017"
+            conn = aiomotor.AsyncIOMotorClient(
+                url, maxPoolSize=2, io_loop=loop)
+            return conn
+
+        conn = loop.run_until_complete(init_mongo(loop))
+
+        db = 'my_db'
+        return conn[db]
+
+
+    async def setup_mongo(app, loop):
+        mongo = init_mongo(loop)
+
+        async def close_mongo(app):
+            mongo.client.close()
+
+        app.on_cleanup.append(close_mongo)
+        return mongo
+
+
     def make_app():
         app = web.Application()
+        loop = asyncio.get_event_loop()
 
-        setup(app, MongoStorage(mongo_colletion,
+        mongo = setup_mongo(app, loop)
+        session_collection = mongo['sessions']
+
+        setup(app, MongoStorage(session_collection,
                                 max_age=max_age,
                                 key_factory=lambda: uuid.uuid4().hex)
                                 )
