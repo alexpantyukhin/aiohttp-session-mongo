@@ -5,7 +5,6 @@ from aiohttp import web
 from aiohttp_session import Session, session_middleware, get_session
 from aiohttp_session_mongo import MongoStorage
 import asyncio
-from datetime import datetime
 
 
 def create_app(handler, mongo_collection, max_age=None,
