@@ -1,7 +1,6 @@
 from aiohttp_session import AbstractStorage, Session
 from datetime import datetime, timedelta
 import uuid
-import asyncio
 
 __version__ = '0.0.1'
 
@@ -9,7 +8,7 @@ __version__ = '0.0.1'
 class MongoStorage(AbstractStorage):
     def __init__(self, collection, *, cookie_name="AIOHTTP_SESSION",
                  domain=None, max_age=None, path='/',
-                 delete_expired_every=None, secure=None, httponly=True,
+                 secure=None, httponly=True,
                  key_factory=lambda: uuid.uuid4().hex,
                  encoder=lambda x: x, decoder=lambda x: x):
         super().__init__(cookie_name=cookie_name, domain=domain,
@@ -17,15 +16,13 @@ class MongoStorage(AbstractStorage):
                          httponly=httponly,
                          encoder=encoder, decoder=decoder)
 
-        self._delete_expired_every = delete_expired_every
         self._collection = collection
         self._key_factory = key_factory
-        self._task_delete_expired = None
-
-        if self._delete_expired_every is not None:
-            self._call_later_delete_expired_sessions()
+        self._expire_index_created = False
 
     async def load_session(self, request):
+        await self._create_expire_index()
+
         cookie = self.load_cookie(request)
         if cookie is None:
             return Session(None, data=None, new=True, max_age=self.max_age)
@@ -53,24 +50,15 @@ class MongoStorage(AbstractStorage):
                 data = None
             return Session(key, data=data, new=False, max_age=self.max_age)
 
-    def _delete_expired_sessions(self):
-        asyncio.get_event_loop().call_soon(self._collection.delete_many(
-            {'expire': {'$lt': datetime.utcnow()}}
-        ))
-
-        self._call_later_delete_expired_sessions()
-
-    def _call_later_delete_expired_sessions(self):
-        self._task_delete_expired = asyncio.get_event_loop().call_later(
-            self._delete_expired_every,
-            self._delete_expired_sessions
-        )
-
-    def finalize(self):
-        if self._task_delete_expired is not None:
-            self._task_delete_expired.cancel()
+    async def _create_expire_index(self):
+        if not self._expire_index_created:
+            await self._collection.create_index([("expireAt", 1)],
+                                                expireAfterSeconds=0)
+            self._expire_index_created = True
 
     async def save_session(self, request, response, session):
+        await self._create_expire_index()
+
         key = session.identity
         if key is None:
             key = self._key_factory()
@@ -96,7 +84,7 @@ class MongoStorage(AbstractStorage):
                     {
                         'key': stored_key,
                         'data': data,
-                        'expire': expire
+                        'expireAt': expire
                     }
             },
             upsert=True)
