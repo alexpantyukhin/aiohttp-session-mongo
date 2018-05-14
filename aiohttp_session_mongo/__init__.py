@@ -52,7 +52,7 @@ class MongoStorage(AbstractStorage):
 
     async def _create_expire_index(self):
         if not self._expire_index_created:
-            await self._collection.create_index([("expireAt", 1)],
+            await self._collection.create_index([("expire", 1)],
                                                 expireAfterSeconds=0)
             self._expire_index_created = True
 
@@ -84,7 +84,7 @@ class MongoStorage(AbstractStorage):
                     {
                         'key': stored_key,
                         'data': data,
-                        'expireAt': expire
+                        'expire': expire
                     }
             },
             upsert=True)
