@@ -232,14 +232,14 @@ async def test_create_storage_not_show_expired_session(
     await mongo_collection.delete_many({})
 
     client = await aiohttp_client(
-        create_app(handler, mongo_collection, 3)
+        create_app(handler, mongo_collection, 10)
     )
     resp = await client.get('/')
     assert resp.status == 200
 
     before_deletion = await mongo_collection.count()
 
-    await asyncio.sleep(5)
+    await asyncio.sleep(120)
 
     count = await mongo_collection.count()
     assert count == before_deletion - 1
