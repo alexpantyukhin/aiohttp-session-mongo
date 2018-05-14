@@ -4,7 +4,6 @@ import time
 from aiohttp import web
 from aiohttp_session import Session, session_middleware, get_session
 from aiohttp_session_mongo import MongoStorage
-from _datetime import datetime, timedelta
 import asyncio
 
 
