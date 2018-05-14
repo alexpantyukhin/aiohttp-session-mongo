@@ -8,20 +8,14 @@ import asyncio
 
 
 def create_app(handler, mongo_collection, max_age=None,
-               key_factory=lambda: uuid.uuid4().hex,
-               delete_expired_every=None):
+               key_factory=lambda: uuid.uuid4().hex):
 
     mongo_storage = MongoStorage(mongo_collection, max_age=max_age,
-                                 delete_expired_every=delete_expired_every,
                                  key_factory=key_factory)
 
     middleware = session_middleware(mongo_storage)
     app = web.Application(middlewares=[middleware])
 
-    async def dispose_storage(app):
-        mongo_storage.finalize()
-
-    app.on_cleanup.append(dispose_storage)
     app.router.add_route('GET', '/', handler)
     return app
 
@@ -226,7 +220,7 @@ async def test_create_storage_with_custom_key_factory(
     assert value['session']['key'] == 'value'
 
 
-async def test_create_storage_with_delete_expired_every(
+async def test_create_storage_not_show_expired_session(
         aiohttp_client, mongo_collection):
 
     async def handler(request):
@@ -238,14 +232,14 @@ async def test_create_storage_with_delete_expired_every(
     await mongo_collection.delete_many({})
 
     client = await aiohttp_client(
-        create_app(handler, mongo_collection, 5, delete_expired_every=2)
+        create_app(handler, mongo_collection, 10)
     )
     resp = await client.get('/')
     assert resp.status == 200
 
     before_deletion = await mongo_collection.count()
 
-    await asyncio.sleep(10)
+    await asyncio.sleep(120)
 
     count = await mongo_collection.count()
     assert count == before_deletion - 1
