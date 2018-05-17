@@ -75,7 +75,7 @@ class MongoStorage(AbstractStorage):
 
         data = self._encoder(self._get_session_data(session))
         expire = datetime.utcnow() + timedelta(seconds=session.max_age) \
-            if session.max_age is not None else 0
+            if session.max_age is not None else None
         stored_key = (self.cookie_name + '_' + key).encode('utf-8')
         await self._collection.update_one(
             {'key': stored_key},
