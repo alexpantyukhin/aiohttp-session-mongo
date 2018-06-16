@@ -35,7 +35,7 @@ class MongoStorage(AbstractStorage):
                         {'key': stored_key},
                         {
                             '$or': [
-                                {'expire': {'$exists': False}},
+                                {'expire': None},
                                 {'expire': {'$lt': datetime.utcnow()}}]
                         }]
                 })

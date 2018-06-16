@@ -182,7 +182,7 @@ async def test_create_cookie_in_handler(aiohttp_client, mongo_collection):
     assert count > 0
 
 
-async def test_create_new_session_if_key_doesnt_exists_in_redis(
+async def test_create_new_session_if_key_doesnt_exists_in_mongo(
         aiohttp_client, mongo_collection):
     async def handler(request):
         session = await get_session(request)
