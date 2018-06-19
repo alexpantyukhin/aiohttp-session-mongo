@@ -243,3 +243,28 @@ async def test_create_storage_not_show_expired_session(
 
     count = await mongo_collection.count()
     assert count == before_deletion - 1
+
+
+async def test_load_session_dont_load_expired_session(aiohttp_client,
+                                                      mongo_collection):
+    async def handler(request):
+        session = await get_session(request)
+        exp_param = request.rel_url.query.get('exp', None)
+        if exp_param is None:
+            session['a'] = 1
+            session['b'] = 2
+        else:
+            assert {} == session
+
+        return web.Response(body=b'OK')
+
+    client = await aiohttp_client(
+        create_app(handler, mongo_collection, 5)
+    )
+    resp = await client.get('/')
+    assert resp.status == 200
+
+    await asyncio.sleep(10)
+
+    resp = await client.get('/?exp=yes')
+    assert resp.status == 200
