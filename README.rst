@@ -59,7 +59,7 @@ A trivial usage example:
         db = await setup_mongo(app, loop)
         session_collection = db['sessions']
 
-        max_age = 3600 * 24 * 265 # 1 year
+        max_age = 3600 * 24 * 365 # 1 year
         setup(app, MongoStorage(session_collection, max_age=max_age))
 
         app.router.add_get('/', handler)
