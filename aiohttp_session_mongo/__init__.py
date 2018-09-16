@@ -31,13 +31,11 @@ class MongoStorage(AbstractStorage):
             stored_key = (self.cookie_name + '_' + key).encode('utf-8')
             data_row = await self._collection.find_one(
                 filter={
-                    '$and': [
-                        {'key': stored_key},
-                        {
-                            '$or': [
-                                {'expire': None},
-                                {'expire': {'$lt': datetime.utcnow()}}]
-                        }]
+                    'key': stored_key,
+                    '$or': [
+                        {'expire': None},
+                        {'expire': {'$gt': datetime.utcnow()}}
+                    ]
                 })
 
             if data_row is None:
