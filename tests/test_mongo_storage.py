@@ -176,7 +176,7 @@ async def test_create_cookie_in_handler(aiohttp_client, mongo_collection):
     assert morsel['path'] == '/'
 
     storage_key = ('AIOHTTP_SESSION_' + morsel.value).encode('utf-8')
-    count = await mongo_collection.count(
+    count = await mongo_collection.count_documents(
         {'key': storage_key}
     )
     assert count > 0
@@ -237,11 +237,11 @@ async def test_create_storage_not_show_expired_session(
     resp = await client.get('/')
     assert resp.status == 200
 
-    before_deletion = await mongo_collection.count()
+    before_deletion = await mongo_collection.count_documents({})
 
     await asyncio.sleep(120)
 
-    count = await mongo_collection.count()
+    count = await mongo_collection.count_documents({})
     assert count == before_deletion - 1
 
 
