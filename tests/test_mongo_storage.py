@@ -43,7 +43,7 @@ async def make_cookie_with_bad_value(client, mongo_collection):
     await mongo_collection.update_one(
         {'_id': storage_key},
         {"$set": {
-            'data': {}
+            'data': None
         }},
         upsert=True)
     client.session.cookie_jar.update_cookies({'AIOHTTP_SESSION': key})
