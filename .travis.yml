@@ -1,28 +1,29 @@
 language: python
-
 services:
 - docker
-
 python:
 - 3.5
 - 3.6
 - nightly
-
 matrix:
   allow_failures:
   - python: nightly
-
 install:
-# - pip install --upgrade setuptools
 - pip install wheel
 - pip install -r requirements-dev.txt
 - pip install codecov
-
 script:
 - make cov
 - python setup.py check -rm
-- if python -c "import sys; sys.exit(sys.version_info < (3,5))"; then
-      python setup.py check -s;
-  fi
-
+- if python -c "import sys; sys.exit(sys.version_info < (3,5))"; then python setup.py
+  check -s; fi
 sudo: false
+deploy:
+  provider: pypi
+  user: apantykhin
+  password:
+    secure: vNUhDGhu2uqcYJTCgqYn+9UtrKCUJrlsB5StyjZDKoVvmZ5NojIjfKbvWEty6kWAa1DWWzjJSBKQq8k/QOHSR81LTWhQ0o5cb2FFDzgi1zvwTpGEGdavizM2Sf8uItj687o+6ElgBEjnoiOuUwgqJ2P9JFBc2veuWPrDIlp97aholPen8Iiliw9XbhnB6qHsSgpf6R2Bw2tgi6r2DRpY13y9sYWuqy1vPc0KjHlfP/7PtADUrAFmGfbaL4Pnd11mHfMC8Fb1oHGsi1XzZhkvAs22Q0cdnANcrAfbM3fwRNIcqnscTIPett24EWvukjPv/SxILmTOVh/eeqKrEmihREfoTCVdMgMoJITIlOpgageZGvroNnr4huIrZT/hgveVtgaProCe5PQ75yjxNA54nl0nb9IUfk2n8KLhi1KCWH+eB0bQHJ96bCMAT16zRPgwTNG3Q05XhhgWoPRcnIbfSdqolAdITSozcE1d8NTmdh5k78LINxlFYUEV7D43u7ikU6QVjiOCu/kJIPEUv+0xfmN0kdlpX+iTM9HFb+3EHMFmR9zQ4FUnb0mm9FjtUZgy8B8KQgkYUOwtxU5qTEyFWQmgwjoB4q9xaK0pzbnUZ0XJnfA+nH5kVKRYLEsRdazfZcABfkA4zuCHNhDH5IM0MJ/i82juAcd0OEO75ncAd2M=
+  distributions: "sdist bdist_wheel"
+  on:
+    tags: true
+    branch: master
