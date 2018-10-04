@@ -1,23 +1,30 @@
 language: python
+
 services:
 - docker
+
 python:
 - 3.5
 - 3.6
 - nightly
+
 matrix:
   allow_failures:
   - python: nightly
+
 install:
 - pip install wheel
 - pip install -r requirements-dev.txt
 - pip install codecov
+
 script:
 - make cov
 - python setup.py check -rm
 - if python -c "import sys; sys.exit(sys.version_info < (3,5))"; then python setup.py
   check -s; fi
+
 sudo: false
+
 deploy:
   provider: pypi
   user: apantykhin
@@ -27,3 +34,4 @@ deploy:
   on:
     tags: true
     branch: master
+
