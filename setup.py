@@ -25,6 +25,7 @@ setup(name='aiohttp-session-mongo',
       version=version,
       description=("mongo sessions for aiohttp.web"),
       long_description=read('README.rst'),
+      long_description_content_type='text/x-rst',
       classifiers=[
           'License :: OSI Approved :: Apache Software License',
           'Intended Audience :: Developers',
@@ -44,3 +45,4 @@ setup(name='aiohttp-session-mongo',
       install_requires=install_requires,
       include_package_data=True,
       extras_require=extras_require)
+
