@@ -2,7 +2,7 @@ attrs==17.4.0
 flake8==3.5.0
 sphinx==1.7.4
 pep257==0.7.0
-aiohttp-session==2.6.0
+aiohttp-session==2.7.0
 motor==2.0.0
 -e .
 cryptography==2.3
