@@ -15,7 +15,7 @@ def read(f):
     return open(os.path.join(os.path.dirname(__file__), f)).read().strip()
 
 
-install_requires = ['aiohttp_session']
+install_requires = ['aiohttp_session', 'multidict']
 extras_require = {
     'motor': ['motor']
 }
