@@ -1,7 +1,10 @@
+=====================
 aiohttp_session_mongo
-===============
+=====================
+
 .. image:: https://travis-ci.org/alexpantyukhin/aiohttp-session-mongo.svg?branch=master
     :target: https://travis-ci.org/alexpantyukhin/aiohttp-session-mongo
+
 .. image:: https://codecov.io/github/alexpantyukhin/aiohttp-session-mongo/coverage.svg?branch=master
     :target: https://codecov.io/github/alexpantyukhin/aiohttp-session-mongo
 
