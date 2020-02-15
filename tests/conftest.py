@@ -86,7 +86,7 @@ def mongo_server(docker, session_id, loop, request):
                 io_loop=loop)
             loop.run_until_complete(conn.list_databases())
             break
-        except ServerSelectionTimeoutError as e:
+        except ServerSelectionTimeoutError:
             time.sleep(delay)
             delay *= 2
     else:
