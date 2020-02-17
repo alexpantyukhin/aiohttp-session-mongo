@@ -82,6 +82,6 @@ class MongoStorage(AbstractStorage):
                 }
             },
             upsert=True)
-        
+
     def __get_store_key(self, key):
         return (self.cookie_name + '_' + key).encode('utf-8')
