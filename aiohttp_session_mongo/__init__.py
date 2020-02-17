@@ -28,10 +28,9 @@ class MongoStorage(AbstractStorage):
             return Session(None, data=None, new=True, max_age=self.max_age)
         else:
             key = str(cookie)
-            stored_key = (self.cookie_name + '_' + key).encode('utf-8')
             data_row = await self._collection.find_one(
                 filter={
-                    '_id': stored_key,
+                    '_id': self.__get_store_key(key),
                     '$or': [
                         {'expire': None},
                         {'expire': {'$gt': datetime.utcnow()}}
@@ -74,9 +73,8 @@ class MongoStorage(AbstractStorage):
         data = self._encoder(self._get_session_data(session))
         expire = datetime.utcnow() + timedelta(seconds=session.max_age) \
             if session.max_age is not None else None
-        stored_key = (self.cookie_name + '_' + key).encode('utf-8')
         await self._collection.update_one(
-            {'_id': stored_key},
+            {'_id': self.__get_store_key(key)},
             {
                 "$set": {
                     'data': data,
@@ -84,3 +82,6 @@ class MongoStorage(AbstractStorage):
                 }
             },
             upsert=True)
+        
+    def __get_store_key(self, key):
+        return (self.cookie_name + '_' + key).encode('utf-8')
