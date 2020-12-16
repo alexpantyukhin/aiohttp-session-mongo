@@ -22,36 +22,38 @@ class MongoStorage(AbstractStorage):
 
     async def load_session(self, request):
         await self._create_expire_index()
-
         cookie = self.load_cookie(request)
+
         if cookie is None:
             return Session(None, data=None, new=True, max_age=self.max_age)
-        else:
-            key = str(cookie)
-            data_row = await self._collection.find_one(
-                filter={
-                    '_id': self.__get_store_key(key),
-                    '$or': [
-                        {'expire': None},
-                        {'expire': {'$gt': datetime.utcnow()}}
-                    ]
-                })
 
-            if data_row is None:
-                return Session(None, data=None,
-                               new=True, max_age=self.max_age)
+        key = str(cookie)
+        data_row = await self._collection.find_one(
+            filter={
+                '_id': self.__get_store_key(key),
+                '$or': [
+                    {'expire': None},
+                    {'expire': {'$gt': datetime.utcnow()}}
+                ]
+            })
 
-            try:
-                data = self._decoder(data_row['data'])
-            except ValueError:
-                data = None
-            return Session(key, data=data, new=False, max_age=self.max_age)
+        if data_row is None:
+            return Session(None, data=None,
+                           new=True, max_age=self.max_age)
+
+        try:
+            data = self._decoder(data_row['data'])
+        except ValueError:
+            data = None
+        return Session(key, data=data, new=False, max_age=self.max_age)
 
     async def _create_expire_index(self):
-        if not self._expire_index_created:
-            await self._collection.create_index([("expire", 1)],
-                                                expireAfterSeconds=0)
-            self._expire_index_created = True
+        if self._expire_index_created:
+            return
+
+        await self._collection.create_index([("expire", 1)],
+                                            expireAfterSeconds=0)
+        self._expire_index_created = True
 
     async def save_session(self, request, response, session):
         await self._create_expire_index()
