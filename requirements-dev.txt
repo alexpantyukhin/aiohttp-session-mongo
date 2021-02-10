@@ -5,7 +5,7 @@ pep257==0.7.0
 aiohttp-session==2.7.0
 motor==2.0.0
 -e .
-cryptography==3.2
+cryptography==3.3.2
 docker==4.1.0
 pytest==5.2.2
 pytest-aiohttp==0.3.0
